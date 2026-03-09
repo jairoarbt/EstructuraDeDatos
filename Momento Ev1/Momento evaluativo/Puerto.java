@@ -9,8 +9,8 @@ public class Puerto {
 
     public Puerto(){
         
-    Buque[] buques = new Buque[10];
-    Contenedor[][] patio = new Contenedor[10][10];
+    this.buques = new Buque[10];
+    this.patio = new Contenedor[10][10];
     }
 
     public boolean agregarBuque(Buque buque) {
@@ -51,12 +51,14 @@ public class Puerto {
             } else {
                 System.out.println("No se pudo agregar el contenedor, la posición (" + fila + ", " + columna + ") ya está ocupada.");
                 return false;
-            }
+            
         } else {
             System.out.println("No se pudo agregar el contenedor, la posición (" + fila + ", " + columna + ") es inválida.");
             return false;
         }
     }
+    System.out.println("Posición inválida");
+}
 
     public double calcularPesoTotal(){
         double pesoTotal = 0;
@@ -72,20 +74,18 @@ public class Puerto {
 
     public void listarOrigenes() {
         System.out.println("Orígenes de los contenedores en el patio:");
-        for (int i = 0; i < patio.length; i++) {
-            for (int j = 0; j < patio[i].length; j++) {
+        HashMap <String, Integer> ConteoOrigenes = new HashMap<>();
+
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
                 if (patio[i][j] != null) {
-                    System.out.println("Contenedor en posición (" + i + ", " + j + "): Origen - " + patio[i][j].getOrigen());
+                    String origen = patio[i][j].getOrigen();
+                    ConteoOrigenes.put(origen, ConteoOrigenes.getOrDefault(origen, 0) + 1);
                 }
             }
         }
-    }
-    System.out.println(" Origen de los contenedores ");     
-    if (ConteoOrigenes.isEmpty()) {
-        System.out.println("No hay contenedores en el patio.");
-    } else {
-        for (Map.Entry<String, Integer> entry : ConteoOrigenes.entrySet()) {
-            System.out.println("Origen: " + entry.getKey() + ", Cantidad: " + entry.getValue());
+
+        if (conteoOrigenes.isEm
         }
     }
 
