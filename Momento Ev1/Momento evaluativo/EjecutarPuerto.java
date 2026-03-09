@@ -17,6 +17,7 @@ public class EjecutarPuerto{
             System.out.print("Seleccione una opción: ");
             try {
                 opcion = scanner.nextInt();
+                scanner.nextLine();
                 switch (opcion) {
                     case 1:
                         // Lógica para agregar buque
