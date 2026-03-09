@@ -32,7 +32,7 @@ public class Puerto {
                 if (patio[i][j] != null) {
                     System.out.print("[X] ");
                 } else {
-                    System.out.print(patio[i][j].toString() + "");
+                    System.out.print("[ ] ");
                 }
             }
             System.out.println();
@@ -43,21 +43,22 @@ public class Puerto {
     }
 
     public boolean agregarContenedor(Contenedor contenedor, int fila, int columna) {
-        if (fila >= 0 && fila < patio.length && columna >= 0 && columna < patio[fila].length) {
-            if (patio[fila][columna] == null) {
-                patio[fila][columna] = contenedor;
-                System.out.println("Contenedor agregado correctamente: " + contenedor.getId() + " en la posición (" + fila + ", " + columna + ")");
-                return true;
-            } else {
-                System.out.println("No se pudo agregar el contenedor, la posición (" + fila + ", " + columna + ") ya está ocupada.");
-                return false;
-            
-        } else {
-            System.out.println("No se pudo agregar el contenedor, la posición (" + fila + ", " + columna + ") es inválida.");
+        if(columna < 0 || columna >= 10){
+            System.out.println(" Error columna invalida");
             return false;
         }
-    }
-    System.out.println("Posición inválida");
+
+        for(fila = 9; fila >= 0; fila--){
+            if(patio[fila][columna] == null){
+                patio[fila][columna] = contenedor;
+                System.out.println("Contenedor agregado correctamente en la posición (" + fila + ", " + columna + ")");
+                return true;
+            }
+        }
+            
+    
+    System.out.println("La columna " + columna + " está llena.");
+    return false;
 }
 
     public double calcularPesoTotal(){
@@ -85,14 +86,14 @@ public class Puerto {
             }
         }
 
-        if (conteoOrigenes.isEm
+        if (ConteoOrigenes.isEmpty()){
+            System.out.println("No hay contenedores en el patio.");
+        }else {
+            for (Map.Entry<String, Integer> entry : ConteoOrigenes.entrySet()) {
+                System.out.println("Origen: " + entry.getKey() + ", Cantidad: " + entry.getValue());
+            }
         }
     }
-
-
-
-    
-
 
 
 
