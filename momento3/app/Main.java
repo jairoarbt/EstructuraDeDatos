@@ -6,10 +6,21 @@ import util.GestorAcademico;
 
 import java.util.Scanner;
 
+/**
+ * Punto de entrada del sistema academico.
+ *
+ * <p>Esta clase se encarga de la interaccion por consola: muestra el menu,
+ * lee datos del usuario y delega la logica de negocio a {@link GestorAcademico}.
+ * Se usa un switch clasico con {@code case:} y {@code break} para mantener
+ * compatibilidad con versiones antiguas de Java.</p>
+ */
 public class Main {
     private static final Scanner sc = new Scanner(System.in);
     private static final GestorAcademico gestor = new GestorAcademico();
 
+     /**
+     * Ejecuta el ciclo principal del programa hasta que el usuario seleccione salir.
+     */
     public static void main(String[] args) {
         System.out.println("Sistema inicializado con materias, aulas, facultades y edificios de ejemplo.");
         boolean activo = true;
@@ -29,6 +40,12 @@ public class Main {
         System.out.println("Gracias por usar el sistema. Hasta pronto.");
     }
 
+    /**
+     * Ejecuta la accion asociada a la opcion seleccionada en el menu.
+     *
+     * @param op numero digitado por el usuario
+     * @return {@code false} cuando se selecciona salir; {@code true} en los demas casos
+     */
     private static boolean opcion(int op) throws EstudianteNoEncontradoException,
             PreRequisitoNoAprobadoException, HorarioConflictivoException,
             PilaDeshacerVaciaException, ArchivoInvalidoException {
@@ -105,6 +122,9 @@ public class Main {
         return true;
     }
 
+     /**
+     * Imprime las opciones disponibles para acceder a todas las funcionalidades.
+     */
     private static void menu() {
          System.out.println();
         System.out.println("============================================================");
@@ -142,7 +162,9 @@ public class Main {
         System.out.println("22. Salir");
 
     }
-
+    /**
+     * Solicita los datos basicos y registra un estudiante en el sistema.
+     */
     private static void registrarEstudiante() {
         imprimir("--- REGISTRO DE ESTUDIANTE ---");
         String id = txt("ID: "), nombre = txt("Nombre: "), email = txt("Email: ");
@@ -213,6 +235,9 @@ public class Main {
         return txt("Aula: ");
     }
 
+    /**
+     * Lee texto obligatorio desde consola y evita aceptar campos vacios.
+     */
     private static String txt(String msg) {
         while (true) {
             System.out.print(msg);
@@ -222,11 +247,17 @@ public class Main {
         }
     }
 
+     /**
+     * Lee un numero entero y repite la pregunta si el formato no es valido.
+     */
     private static int leerInt(String msg) {
         while (true) try { return Integer.parseInt(txt(msg)); }
         catch (NumberFormatException e) { imprimir("Ingrese un numero entero valido."); }
     }
 
+      /**
+     * Lee un numero decimal. Acepta coma o punto como separador decimal.
+     */
     private static double leerDouble(String msg) {
         while (true) try { return Double.parseDouble(txt(msg).replace(",", ".")); }
         catch (NumberFormatException e) { imprimir("Ingrese un numero decimal valido."); }

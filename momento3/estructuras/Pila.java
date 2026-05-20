@@ -7,6 +7,9 @@ public class Pila<T> {
     private Nodo<T> cima;
     private int tamanio;
 
+    /**
+     * Inserta un dato en la cima de la pila.
+     */
     public void apilar(T dato) {
         Nodo<T> nuevo = new Nodo<>(dato);
         nuevo.siguiente = cima;
@@ -14,6 +17,9 @@ public class Pila<T> {
         tamanio++;
     }
 
+    /**
+     * Retira y devuelve el ultimo dato insertado.
+     */
     public T desapilar() {
         if (estaVacia()) {
             return null;

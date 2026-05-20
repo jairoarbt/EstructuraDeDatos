@@ -1,5 +1,8 @@
 package modelo;
 
+/**
+ * Clase hija de Persona incluida para demostrar la jerarquia de herencia.
+ */
 public class Profesor extends Persona {
     private String departamento;
     private double salario;

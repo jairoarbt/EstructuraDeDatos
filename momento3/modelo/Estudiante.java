@@ -3,6 +3,13 @@ package modelo;
 import estructuras.ListaEnlazada;
 import java.util.List;
 
+/**
+ * Representa a un estudiante de la universidad.
+ *
+ * <p>Hereda de {@link Persona} y agrega el semestre actual, la matriz nativa
+ * {@code Double[10][20]} para notas por semestre y una lista enlazada para
+ * el historial de materias cursadas.</p>
+ */
 public class Estudiante extends Persona {
     private static final int SEMESTRES = 10, MATERIAS = 20;
     private static final double APROBATORIA = 3.0;
@@ -12,12 +19,18 @@ public class Estudiante extends Persona {
     private String[][] codigosMaterias = new String[SEMESTRES][MATERIAS];
     private ListaEnlazada<String> historialMaterias = new ListaEnlazada<>();
 
+    /**
+     * Crea un estudiante validando que el semestre este dentro del rango permitido.
+     */
     public Estudiante(String nombre, String id, String email, int semestreActual) {
         super(nombre, id, email);
         validarSemestre(semestreActual);
         this.semestreActual = semestreActual;
     }
 
+    /**
+     * Registra o actualiza una nota dentro de la matriz de notas.
+     */
     public void registrarNota(int semestre, String codigoMateria, double nota) {
         validarSemestre(semestre); validarNota(nota);
         int fila = semestre - 1, libre = -1;
@@ -36,6 +49,9 @@ public class Estudiante extends Persona {
         agregarHistorial(codigo);
     }
 
+     /**
+     * Indica si el estudiante aprobo una materia con nota mayor o igual a 3.0.
+     */
     public boolean aproboMateria(String codigoMateria) {
         for (int s = 0; s < SEMESTRES; s++)
             for (int m = 0; m < MATERIAS; m++)
@@ -44,11 +60,17 @@ public class Estudiante extends Persona {
         return false;
     }
 
+    /**
+     * Calcula el promedio de un semestre especifico.
+     */
     public double calcularPromedioSemestre(int semestre) {
         validarSemestre(semestre);
         return promedioFila(semestre - 1);
     }
 
+    /**
+     * Calcula el promedio acumulado con todas las notas registradas.
+     */
     public double calcularPromedioAcumulado() {
         double suma = 0; int cant = 0;
         for (int s = 0; s < SEMESTRES; s++)
@@ -60,6 +82,9 @@ public class Estudiante extends Persona {
     public int contarAprobadas() { return contar(true); }
     public int contarReprobadas() { return contar(false); }
 
+    /**
+     * Construye un reporte academico con promedios y materias reprobadas.
+     */
     public String generarReporteAcademico() {
         StringBuilder r = new StringBuilder("--- REPORTE ACADEMICO ---\n")
                 .append("Estudiante: ").append(getNombre()).append(" (ID: ").append(getId()).append(")\n");
@@ -78,16 +103,25 @@ public class Estudiante extends Persona {
                 .append(detalleReprobadas()).toString();
     }
 
+    /**
+     * Copia la matriz de notas para conservar estados de deshacer/rehacer.
+     */
     public Double[][] copiarNotas() { return copiar(notas); }
     public String[][] copiarCodigosMaterias() { return copiar(codigosMaterias); }
     public List<String> copiarHistorial() { return historialMaterias.aLista(); }
 
+    /**
+     * Restaura notas, codigos e historial desde una copia guardada.
+     */
     public void restaurarEstadoAcademico(Double[][] nuevasNotas, String[][] nuevosCodigos, List<String> historial) {
         notas = copiar(nuevasNotas);
         codigosMaterias = copiar(nuevosCodigos);
         historialMaterias.reemplazarCon(historial);
     }
 
+    /**
+     * Implementacion polimorfica del metodo definido en Persona.
+     */
     @Override
     public String mostrarInformacion() {
         return "ID: " + getId() + "\nNombre: " + getNombre() + "\nEmail: " + getEmail()

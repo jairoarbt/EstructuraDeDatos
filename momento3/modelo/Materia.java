@@ -4,6 +4,10 @@ import estructuras.*;
 import excepciones.*;
 import java.util.List;
 
+/**
+ * Representa una materia academica con cupos, creditos, pre-requisitos,
+ * estudiantes inscritos y cola de espera.
+ */
 public class Materia {
     private String codigo, nombre;
     private int cuposMaximos, creditos;
@@ -11,6 +15,9 @@ public class Materia {
     private ListaEnlazada<String> estudiantesInscritos = new ListaEnlazada<>();
     private Cola<String> colaEspera = new Cola<>();
 
+    /**
+     * Crea una materia y valida que tenga al menos un cupo.
+     */
     public Materia(String codigo, String nombre, int cuposMaximos, int creditos) {
         if (cuposMaximos <= 0) throw new IllegalArgumentException("La materia debe tener al menos un cupo.");
         this.codigo = codigo.toUpperCase();
@@ -24,17 +31,26 @@ public class Materia {
     public boolean estaInscrito(String id) { return estudiantesInscritos.contiene(id); }
     public boolean estaEnCola(String id) { return colaEspera.contiene(id); }
 
+    /**
+     * Agrega un codigo de materia a la lista enlazada de pre-requisitos.
+     */
     public void agregarPreRequisito(String codigoPre) {
         codigoPre = codigoPre.toUpperCase();
         if (!preRequisitos.contiene(codigoPre)) preRequisitos.agregar(codigoPre);
     }
 
+    /**
+     * Comprueba que el estudiante haya aprobado todos los pre-requisitos.
+     */
     public void validarPreRequisitos(Estudiante e) throws PreRequisitoNoAprobadoException {
         for (String pre : preRequisitos)
             if (!e.aproboMateria(pre))
                 throw new PreRequisitoNoAprobadoException("El estudiante " + e.getId() + " no ha aprobado " + pre + ".");
     }
 
+    /**
+     * Inscribe directamente si existe cupo disponible.
+     */
     public void inscribirDirecto(String id) throws CupoLlenoException {
         if (getCuposDisponibles() <= 0) throw new CupoLlenoException("La materia " + codigo + " no tiene cupos disponibles.");
         if (!estudiantesInscritos.contiene(id)) estudiantesInscritos.agregar(id);
@@ -44,6 +60,9 @@ public class Materia {
     public void agregarAColaDeEspera(String id) { if (!colaEspera.contiene(id)) colaEspera.encolar(id); }
     public boolean retirarDeCola(String id) { return colaEspera.eliminar(id); }
 
+    /**
+     * Saca de la cola al primer estudiante en espera y lo inscribe.
+     */
     public String asignarPrimerEstudianteEnEspera() throws ColaDeEsperaVaciaException, CupoLlenoException {
         if (colaEspera.estaVacia()) throw new ColaDeEsperaVaciaException("La cola de espera de " + codigo + " esta vacia.");
         String id = colaEspera.desencolar();
@@ -53,6 +72,9 @@ public class Materia {
 
     public List<String> copiarInscritos() { return estudiantesInscritos.aLista(); }
     public List<String> copiarColaEspera() { return colaEspera.aLista(); }
+    /**
+     * Restaura inscritos y cola de espera desde copias guardadas.
+     */
     public void restaurarEstado(List<String> inscritos, List<String> espera) {
         estudiantesInscritos.reemplazarCon(inscritos);
         colaEspera.reemplazarCon(espera);

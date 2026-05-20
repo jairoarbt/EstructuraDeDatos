@@ -1,5 +1,11 @@
 package util;
 
+/**
+ * Implementacion concreta de una operacion reversible.
+ *
+ * <p>Guarda dos acciones: una para restaurar el estado anterior y otra para
+ * aplicar nuevamente el estado posterior.</p>
+ */
 public class OperacionSimple implements OperacionDeshacer {
     private String descripcion;
     private Runnable accionDeshacer;

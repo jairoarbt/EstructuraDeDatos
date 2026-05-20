@@ -2,10 +2,19 @@ package estructuras;
 
 import java.util.*;
 
+/**
+ * Cola generica FIFO implementada manualmente con nodos enlazados.
+ *
+ * <p>FIFO significa primero en entrar, primero en salir. Se usa en la cola
+ * de espera de materias y en el procesamiento por lotes.</p>
+ */
 public class Cola<T> {
     private Nodo<T> frente, fin;
     private int tamanio;
 
+    /**
+     * Inserta un dato al final de la cola.
+     */
     public void encolar(T dato) {
         Nodo<T> n = new Nodo<>(dato);
         if (frente == null) frente = fin = n;
@@ -13,6 +22,9 @@ public class Cola<T> {
         tamanio++;
     }
 
+      /**
+     * Retira y devuelve el dato ubicado al frente de la cola.
+     */
     public T desencolar() {
         if (estaVacia()) return null;
         T dato = frente.dato;
@@ -28,6 +40,9 @@ public class Cola<T> {
         return false;
     }
 
+     /**
+     * Elimina un dato especifico de la cola, usado para retirar estudiantes en espera.
+     */
     public boolean eliminar(T dato) {
         Nodo<T> actual = frente, anterior = null;
         while (actual != null) {

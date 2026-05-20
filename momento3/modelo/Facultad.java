@@ -1,5 +1,8 @@
 package modelo;
 
+/**
+ * Representa una facultad dentro del arreglo estatico Facultad[5].
+ */
 public class Facultad {
     private String codigo;
     private String nombre;

@@ -2,6 +2,12 @@ package modelo;
 
 import excepciones.HorarioConflictivoException;
 
+/**
+ * Representa un aula con una matriz de disponibilidad horaria.
+ *
+ * <p>La matriz {@code boolean[7][24]} almacena dias y horas. Un valor
+ * {@code true} indica que la hora esta reservada.</p>
+ */
 public class Aula {
     private static final int DIAS = 7, HORAS = 24;
     private String nombre;
@@ -15,6 +21,9 @@ public class Aula {
 
     public String getNombre() { return nombre; }
 
+     /**
+     * Reserva un bloque de horas si todas estan disponibles.
+     */
     public void reservar(int dia, int hora, int duracion) throws HorarioConflictivoException {
         validar(dia, hora, duracion);
         for (int h = hora; h < hora + duracion; h++)
@@ -22,16 +31,25 @@ public class Aula {
         for (int h = hora; h < hora + duracion; h++) horarioReservado[dia][h] = true;
     }
 
+    /**
+     * Libera un bloque de horas de la matriz.
+     */
     public void liberar(int dia, int hora, int duracion) {
         validar(dia, hora, duracion);
         for (int h = hora; h < hora + duracion; h++) horarioReservado[dia][h] = false;
     }
 
+    /**
+     * Consulta si una hora especifica esta libre.
+     */
     public boolean consultarDisponibilidad(int dia, int hora) {
         validar(dia, hora, 1);
         return !horarioReservado[dia][hora];
     }
 
+     /**
+     * Genera una copia de la matriz para operaciones deshacer/rehacer.
+     */
     public boolean[][] copiarHorario() {
         boolean[][] copia = new boolean[DIAS][HORAS];
         for (int d = 0; d < DIAS; d++) System.arraycopy(horarioReservado[d], 0, copia[d], 0, HORAS);

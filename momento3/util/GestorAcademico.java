@@ -8,33 +8,61 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
+/**
+ * Clase central del sistema academico.
+ *
+ * <p>Coordina estudiantes, materias, aulas, rutas, reportes, procesamiento por
+ * lotes y operaciones de deshacer/rehacer. En esta clase se integran las
+ * estructuras exigidas por el proyecto: {@link HashMap}, {@link TreeMap},
+ * arreglos nativos, matrices nativas, listas enlazadas, colas y pilas.</p>
+ */
 public class GestorAcademico {
     private static final int MAX_EDIFICIOS = 10, INF = 1_000_000_000;
 
+    // HashMap: busqueda rapida por ID o codigo.
     private final HashMap<String, Estudiante> estudiantes = new HashMap<>();
     private final HashMap<String, Materia> materias = new HashMap<>();
+    // TreeMap: mantiene las aulas ordenadas por nombre.
     private final TreeMap<String, Aula> aulas = new TreeMap<>();
+    // Arreglo estatico obligatorio de cinco facultades.
     private final Facultad[] facultades = new Facultad[5];
+    // Pilas usadas para deshacer y rehacer operaciones.
     private final Pila<OperacionDeshacer> deshacer = new Pila<>(), rehacer = new Pila<>();
+    // Pilas usadas para navegar reportes hacia atras y adelante.
     private final Pila<String> reportesAtras = new Pila<>(), reportesAdelante = new Pila<>();
+    // Arreglo de nombres y matriz de adyacencia para el grafo de edificios.
     private final String[] edificios = new String[MAX_EDIFICIOS];
     private final int[][] distancias = new int[MAX_EDIFICIOS][MAX_EDIFICIOS];
     private int totalEdificios;
     private String reporteActual;
 
+     /**
+     * Inicializa el gestor y carga datos base para probar el menu sin empezar vacio.
+     */
     public GestorAcademico() { datosBase(); }
 
+    /**
+     * Registra un estudiante usando su ID como clave dentro del HashMap.
+     */
     public void registrarEstudiante(String nombre, String id, String email, int semestre) {
         if (estudiantes.containsKey(id)) throw new IllegalArgumentException("Ya existe un estudiante con ID: " + id);
         estudiantes.put(id, new Estudiante(nombre, id, email, semestre));
     }
 
+    /**
+     * Busca un estudiante por ID.
+     *
+     * @throws EstudianteNoEncontradoException si el estudiante no existe
+     */
     public Estudiante buscarEstudiante(String id) throws EstudianteNoEncontradoException {
         Estudiante e = estudiantes.get(id);
         if (e == null) throw new EstudianteNoEncontradoException("No existe estudiante con ID: " + id);
         return e;
     }
 
+    /**
+     * Devuelve un texto con todos los estudiantes registrados.
+     */
     public String listarEstudiantes() {
         if (estudiantes.isEmpty()) return "No hay estudiantes registrados.";
         StringBuilder s = new StringBuilder("--- ESTUDIANTES REGISTRADOS ---\n");
@@ -42,6 +70,9 @@ public class GestorAcademico {
         return s.toString();
     }
 
+    /**
+     * Elimina un estudiante y guarda la operacion para poder deshacerla.
+     */
     public String eliminarEstudiante(String id) throws EstudianteNoEncontradoException {
         Estudiante e = buscarEstudiante(id);
         Map<String, EstadoMateria> antes = estadosMaterias();
@@ -53,12 +84,18 @@ public class GestorAcademico {
         return "Estudiante eliminado. La baja definitiva se puede deshacer desde la pila.";
     }
 
+    /**
+     * Crea una materia con cupos, creditos, pre-requisitos, inscritos y cola de espera.
+     */
     public void crearMateria(String codigo, String nombre, int cupos, int creditos) {
         codigo = codigo.toUpperCase();
         if (materias.containsKey(codigo)) throw new IllegalArgumentException("Ya existe una materia con codigo: " + codigo);
         materias.put(codigo, new Materia(codigo, nombre, cupos, creditos));
     }
 
+    /**
+     * Agrega un pre-requisito a una materia usando la lista enlazada de la materia.
+     */
     public void agregarPreRequisito(String codigoMateria, String codigoPre) {
         if (!materias.containsKey(codigoPre.toUpperCase())) throw new IllegalArgumentException("El pre-requisito debe existir como materia.");
         if (codigoMateria.equalsIgnoreCase(codigoPre)) throw new IllegalArgumentException("Una materia no puede ser pre-requisito de si misma.");
@@ -74,6 +111,10 @@ public class GestorAcademico {
         return s.toString();
     }
 
+    /**
+     * Inscribe un estudiante si cumple los pre-requisitos; si no hay cupo,
+     * lo agrega a la cola de espera de la materia.
+     */
     public String inscribirEstudiante(String id, String codigo)
             throws EstudianteNoEncontradoException, PreRequisitoNoAprobadoException {
         Estudiante e = buscarEstudiante(id);
@@ -98,6 +139,10 @@ public class GestorAcademico {
         return msg;
     }
 
+    /**
+     * Cancela una inscripcion. Cuando se libera un cupo, intenta asignarlo
+     * automaticamente al primer estudiante de la cola de espera.
+     */
     public String cancelarInscripcion(String id, String codigo) throws EstudianteNoEncontradoException {
         buscarEstudiante(id);
         Materia m = materia(codigo);
@@ -119,6 +164,9 @@ public class GestorAcademico {
 
     public String mostrarColaEspera(String codigoMateria) { return materia(codigoMateria).mostrarColaEspera(); }
 
+     /**
+     * Reserva un bloque horario usando la matriz boolean[7][24] del aula.
+     */
     public String reservarHorario(String nombreAula, int dia, int hora, int duracion) throws HorarioConflictivoException {
         Aula a = aula(nombreAula);
         boolean[][] antes = a.copiarHorario();
@@ -128,6 +176,9 @@ public class GestorAcademico {
         return "Reserva exitosa en " + a.getNombre() + " para " + Aula.nombreDia(dia) + " desde las " + hora + ":00 durante " + duracion + " hora(s).";
     }
 
+    /**
+     * Libera un bloque horario previamente ocupado en la matriz del aula.
+     */
     public String liberarHorario(String nombreAula, int dia, int hora, int duracion) {
         Aula a = aula(nombreAula);
         boolean[][] antes = a.copiarHorario();
@@ -149,6 +200,9 @@ public class GestorAcademico {
         return s.toString();
     }
 
+    /**
+     * Agrega una conexion no dirigida entre dos edificios en la matriz de adyacencia.
+     */
     public void agregarConexion(int origen, int destino, int metros) {
         validarEdificio(origen); validarEdificio(destino);
         if (metros <= 0) throw new IllegalArgumentException("La distancia debe ser mayor que cero.");
@@ -161,6 +215,9 @@ public class GestorAcademico {
         return s.toString();
     }
 
+    /**
+     * Calcula la ruta mas corta entre dos edificios mediante Dijkstra.
+     */
     public String calcularRutaMasCorta(int origen, int destino) {
         validarEdificio(origen); validarEdificio(destino);
         int[] d = new int[totalEdificios], previo = new int[totalEdificios];
@@ -181,6 +238,9 @@ public class GestorAcademico {
         return rutaTexto(camino(destino, previo), d[destino]);
     }
 
+    /**
+     * Registra una nota y guarda copias del estado academico para deshacer/rehacer.
+     */
     public String registrarNota(String id, int semestre, String codigo, double nota) throws EstudianteNoEncontradoException {
         Estudiante e = buscarEstudiante(id);
         Double[][] n1 = e.copiarNotas(); String[][] c1 = e.copiarCodigosMaterias(); List<String> h1 = e.copiarHistorial();
@@ -192,6 +252,9 @@ public class GestorAcademico {
         return "Nota registrada correctamente.";
     }
 
+    /**
+     * Genera un reporte academico y lo guarda en la pila de navegacion de reportes.
+     */
     public String generarReporteAcademico(String id) throws EstudianteNoEncontradoException {
         if (reporteActual != null) reportesAtras.apilar(reporteActual);
         reporteActual = buscarEstudiante(id).generarReporteAcademico();
@@ -211,9 +274,15 @@ public class GestorAcademico {
         return reporteActual = reportesAdelante.desapilar();
     }
 
+    /**
+     * Deshace la ultima operacion registrada en la pila de deshacer.
+     */
     public String deshacer() throws PilaDeshacerVaciaException { return mover(deshacer, rehacer, true); }
+    /**
+     * Rehace la ultima operacion deshecha.
+     */
     public String rehacer() throws PilaDeshacerVaciaException { return mover(rehacer, deshacer, false); }
-
+    
     public String procesarArchivoCsv(String rutaArchivo) throws ArchivoInvalidoException {
         Path ruta = Path.of(rutaArchivo);
         if (!Files.isRegularFile(ruta)) throw new ArchivoInvalidoException("No existe el archivo: " + rutaArchivo);
@@ -239,11 +308,18 @@ public class GestorAcademico {
                 .append("\nEn cola de espera: ").append(espera).append("\nFallidas: ").append(fail).append("\n").toString();
     }
 
+    /**
+     * Crea una operacion reversible y la guarda en la pila de deshacer.
+     */
     private void op(String desc, Runnable undo, Runnable redo) {
         deshacer.apilar(new OperacionSimple(desc, undo, redo));
         rehacer.limpiar();
     }
 
+    
+    /**
+     * Mueve una operacion entre pilas y ejecuta su accion de deshacer o rehacer.
+     */
     private String mover(Pila<OperacionDeshacer> origen, Pila<OperacionDeshacer> destino, boolean esDeshacer)
             throws PilaDeshacerVaciaException {
         if (origen.estaVacia()) throw new PilaDeshacerVaciaException("No hay operaciones para " + (esDeshacer ? "deshacer." : "rehacer."));
@@ -311,6 +387,9 @@ public class GestorAcademico {
         if (i < 0 || i >= totalEdificios) throw new IllegalArgumentException("Indice de edificio invalido: " + i);
     }
 
+    /**
+     * Selecciona el edificio no visitado con menor distancia temporal.
+     */
     private int masCercano(int[] d, boolean[] visto) {
         int pos = -1, menor = INF;
         for (int i = 0; i < totalEdificios; i++) if (!visto[i] && d[i] < menor) { menor = d[i]; pos = i; }
@@ -332,6 +411,11 @@ public class GestorAcademico {
         return s.append("\nDistancia TOTAL: ").append(total).append(" metros").toString();
     }
 
+    
+    
+    /**
+     * Carga datos iniciales: facultades, aulas, materias, pre-requisitos y edificios.
+     */
     private void datosBase() {
         facultades[0] = new Facultad("ING", "Ingenieria");
         facultades[1] = new Facultad("SAL", "Ciencias de la Salud");
@@ -356,6 +440,9 @@ public class GestorAcademico {
         agregarConexion(bib, rec, 260); agregarConexion(ing, lab, 90); agregarConexion(lab, caf, 110);
     }
 
+    /**
+     * Copia del estado de una materia usada por deshacer/rehacer.
+     */
     private static class EstadoMateria {
         private List<String> inscritos;
         private List<String> espera;

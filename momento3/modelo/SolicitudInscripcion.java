@@ -1,5 +1,8 @@
 package modelo;
 
+/**
+ * Representa una solicitud de inscripcion leida desde un archivo CSV.
+ */
 public class SolicitudInscripcion {
     private String idEstudiante;
     private String codigoMateria;

@@ -25,6 +25,9 @@ public abstract class Persona {
     public String getEmail() {
         return email;
     }
+    /**
+     * Devuelve una representacion textual de la informacion de la persona.
+     */
 
     public abstract String mostrarInformacion();
 }
